@@ -3,7 +3,7 @@
 #include <string.h>
 
 /* Return the number of repeated digits in number. Return -1
- * if numbers is NULL or length is less than 1. 
+ * if numbers is NULL or length is less than 1.
  *      numbers: an array of digits
  *      length: the number of digits in number
  * Your solution must have only one loop.
@@ -11,38 +11,70 @@
  * numbers == NULL
  */
 
-int repeated_digits(int *numbers, int length) {
+int repeated_digits(int *numbers, int length)
+{
+
+    if (numbers == NULL || length < 1)
+    {
+        return -1;
+    }
     // TODO complete the function according to its description
     // remember to change the return value.
-   return -9;
+    int freq_arr[10] = {0};
+    int num_repeated = 0;
+    for (int i = 0; i < length; i++)
+    {
+        freq_arr[numbers[i]]++;
+        if (freq_arr[numbers[i]] == 2)
+        {
+            num_repeated++;
+        }
+    }
+
+    return num_repeated;
 }
 
-/* 
+/*
  * Modify numbers so that only digits that appear more than
  * once remain. The order of the digits in numbers when the
- * function returns will be the order in which duplicates 
+ * function returns will be the order in which duplicates
  * were identified. Length is updated to reflect the new
  * length of numbers.
- * 
- * Your solution must have only one loop, and must modify 
+ *
+ * Your solution must have only one loop, and must modify
  * numbers in place.
- * 
+ *
  * Examples:
  *  leave_repeated_digits([1, 2, 2, 1, 3, 2], 6) -> numbers = [2, 1], length = 2
  *  leave_repeated_digits([1, 2], 2) -> numbers = [], length = 0
- * 
+ *
  */
-void leave_repeated_digits(int *numbers, int *length) {
+void leave_repeated_digits(int *numbers, int *length)
+{
     // TODO complete the function according to its description
-}
+    int freq_arr[10] = {0};
+    int start_pos = 0;
 
+    for (int i = 0; i < *length; i++)
+    {
+        freq_arr[numbers[i]]++;
+        if (freq_arr[numbers[i]] == 2)
+        {
+            numbers[start_pos] = numbers[i];
+            start_pos++;
+        }
+        *length = start_pos;
+    }
+}
 
 // Do not change any code after this comment
 
 /* Print the elements of numbers separated by a space.
  */
-void print_array(int *numbers, int length) {
-    for (int i = 0; i < length; i++) {
+void print_array(int *numbers, int length)
+{
+    for (int i = 0; i < length; i++)
+    {
         printf("%d ", numbers[i]);
     }
     printf("\n");
@@ -59,8 +91,10 @@ void print_array(int *numbers, int length) {
  * 1 3
  */
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
+int main(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
         printf("Usage: %s <number>\n", argv[0]);
         return 1;
     }
@@ -77,13 +111,17 @@ int main(int argc, char *argv[]) {
     // Convert the argument to an array of digits, checking that the
     // characters are all digits.
     int len = strlen(argv[1]);
-    int digits[len]; 
+    int digits[len];
 
-    for(int i = 0; i < len; i++) {
-        if (argv[1][i] < '0' || argv[1][i] > '9') {
+    for (int i = 0; i < len; i++)
+    {
+        if (argv[1][i] < '0' || argv[1][i] > '9')
+        {
             printf("Argument must be a number\n");
             return 1;
-        } else {
+        }
+        else
+        {
             digits[i] = argv[1][i] - '0';
         }
     }
