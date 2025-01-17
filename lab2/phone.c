@@ -11,7 +11,24 @@ program returns 0. If the integer is less than -1 or greater than 9, the program
 to stdout and returns 1.
 
  */
+
+
+
+
 int main() {
+    char my_str[11];
+    int my_int;
+    scanf("%10s", my_str);
+    scanf("%d", &my_int);
+
+    if (my_int == -1) {
+       printf("%s\n", my_str);
+    } else if (my_int >= 0 && my_int <= 9) {
+       printf("%c\n", my_str[my_int]);
+    } else {
+       printf("%s\n", "ERROR");
+       return 1;
+    }
     return 0;
 }
 
