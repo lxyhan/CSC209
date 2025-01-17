@@ -63,8 +63,8 @@ void leave_repeated_digits(int *numbers, int *length)
             numbers[start_pos] = numbers[i];
             start_pos++;
         }
-        *length = start_pos;
     }
+    *length = start_pos;
 }
 
 // Do not change any code after this comment
