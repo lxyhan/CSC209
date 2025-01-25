@@ -10,9 +10,32 @@
    to include math.h.  You can do the math with modulo arithmetic and integer
    division.
 */
-int **split_array(const int *s, int length) {
+int **split_array(const int *s, int length)
+{
+  int **result = malloc(2 * sizeof(int *));
 
+  int even_size = (length + 1) / 2;
+  int odd_size = length / 2;
 
+  result[0] = malloc(even_size * sizeof(int));
+  result[1] = malloc(odd_size * sizeof(int));
+
+  int even_index = 0;
+  int odd_index = 0;
+  for (int i = 0; i < length; i++)
+  {
+    if (i % 2 == 0)
+    {
+      result[0][even_index] = s[i];
+      even_index++;
+    }
+    else
+    {
+      result[1][odd_index] = s[i];
+      odd_index++;
+    }
+  }
+  return result;
 }
 
 /* Return a pointer to an array of ints with size elements.
@@ -21,40 +44,48 @@ int **split_array(const int *s, int length) {
    - size is the size of the array
  */
 
-int *build_array(char **strs, int size) {
-
-
+int *build_array(char **strs, int size)
+{
+  int *array = malloc(size * sizeof(int));
+  for (int i = 0; i < size; i++)
+  {
+    array[i] = strtol(strs[i], NULL, 10);
+  }
+  return array;
 }
 
+int main(int argc, char **argv)
+{
+  /* Replace the comments in the next two lines with the appropriate
+     arguments.  Do not add any additional lines of code to the main
+     function or make other changes.
+   */
+  int *full_array = build_array(argv + 1, argc - 1);
+  int **result = split_array(full_array, argc - 1);
 
-int main(int argc, char **argv) {
-    /* Replace the comments in the next two lines with the appropriate
-       arguments.  Do not add any additional lines of code to the main
-       function or make other changes.
-     */
-    int *full_array = build_array(/* fill in the arguments*/);
-    int **result = split_array(full_array, /* fill in this argument */);
+  printf("Original array:\n");
+  for (int i = 0; i < argc - 1; i++)
+  {
+    printf("%d ", full_array[i]);
+  }
+  printf("\n");
 
-    printf("Original array:\n");
-    for (int i = 0; i < argc - 1; i++) {
-        printf("%d ", full_array[i]);
-    }
-    printf("\n");
+  printf("result[0]:\n");
+  for (int i = 0; i < argc / 2; i++)
+  {
+    printf("%d ", result[0][i]);
+  }
+  printf("\n");
 
-    printf("result[0]:\n");
-    for (int i = 0; i < argc / 2; i++) {
-        printf("%d ", result[0][i]);
-    }
-    printf("\n");
-
-    printf("result[1]:\n");
-    for (int i = 0; i < (argc - 1) / 2; i++) {
-        printf("%d ", result[1][i]);
-    }
-    printf("\n");
-    free(full_array);
-    free(result[0]);
-    free(result[1]);
-    free(result);
-    return 0;
+  printf("result[1]:\n");
+  for (int i = 0; i < (argc - 1) / 2; i++)
+  {
+    printf("%d ", result[1][i]);
+  }
+  printf("\n");
+  free(full_array);
+  free(result[0]);
+  free(result[1]);
+  free(result);
+  return 0;
 }

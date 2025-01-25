@@ -16,14 +16,36 @@
 
 /* Write your solution here */
 
+void fib(int **fib_sequence, int count)
+{
+    *fib_sequence = malloc(count * sizeof(int));
+    int i = 0;
+    for (i = 0; i < count; i++)
+    {
+        if (i == 0)
+        {
+            (*fib_sequence)[i] = 0;
+        }
+        else if (i == 1)
+        {
+            (*fib_sequence)[i] = 1;
+        }
+        else
+        {
+            (*fib_sequence)[i] = (*fib_sequence)[i - 2] + (*fib_sequence)[i - 1];
+        }
+    }
+}
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     /* do not change this main function */
     int count = strtol(argv[1], NULL, 10);
     int *fib_sequence;
 
     fib(&fib_sequence, count);
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
+    {
         printf("%d ", fib_sequence[i]);
     }
     free(fib_sequence);
