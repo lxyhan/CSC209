@@ -20,19 +20,20 @@ int **split_array(const int *s, int length)
   result[0] = malloc(even_size * sizeof(int));
   result[1] = malloc(odd_size * sizeof(int));
 
-  int even_index = 0;
-  int odd_index = 0;
+  int even_pointer = 0;
+  int odd_pointer = 0;
+
   for (int i = 0; i < length; i++)
   {
     if (i % 2 == 0)
     {
-      result[0][even_index] = s[i];
-      even_index++;
+      result[0][even_pointer] = s[i];
+      even_pointer++;
     }
     else
     {
-      result[1][odd_index] = s[i];
-      odd_index++;
+      result[1][odd_pointer] = s[i];
+      odd_pointer++;
     }
   }
   return result;
@@ -46,12 +47,12 @@ int **split_array(const int *s, int length)
 
 int *build_array(char **strs, int size)
 {
-  int *array = malloc(size * sizeof(int));
+  int *offset_array = malloc(size * sizeof(int));
   for (int i = 0; i < size; i++)
   {
-    array[i] = strtol(strs[i], NULL, 10);
+    offset_array[i] = strtol(strs[i], NULL, 10);
   }
-  return array;
+  return offset_array;
 }
 
 int main(int argc, char **argv)
