@@ -1,5 +1,35 @@
-Test 1: Test that get_data 
+Test 1: Test that get_data is able to correctly perform basic file reading
+This test verifies if get_data can read multiple lines of content correctly, in a general case.
+./compute_parity 3 4 test_strings.txt
+Expected output:
+Data blocks:
+AABB
+AAAA
+AABB
+Parity block:
+41 41 41 41
 
+Test 2: Test that get_data works on block sizes larger than line length.
+This test verifies that get_data will correctly pad the line with zeros when the line length is shorter
+than the request block size. Here two extra zeros are added for the parity block calculation,
+but not shown.
+./compute_parity 2 6 test_strings.txt
+Expected output:
+Data blocks:
+AABB
+
+AAAA
+
+Parity block:
+00 00 03 03 00 00
+
+Test 3: Test that get_data handles the erorr case when the number of blocks requested is greater than the
+number of blocks that exist in the file. This test verifies that get_data returns an error in this situation,
+returning one error for each block that is in excess of the number of available blocks.
+./compute_parity 6 4 test_strings.txt
+Expected output:
+Error reading data from file
+Error reading data from file
 
 Test 4: Test that compute_parity_block will work on a general case with data from quotes.txt.
 This test is good because it verifies the basic calculation for compte_parity_block.
@@ -30,6 +60,7 @@ Parity block:
 Test 6: Test compute_parity_block on a larger number of blocks correctly.
 This test is good because it tests whether the function can handle a larger number of blocks (18 characters).
 This differts from previous tests which used small blocks of 1-4 characters.
+./compute_parity 2 18 quotes.txt
 Expected output:
 Data blocks:
 "Humans are allerg
@@ -47,13 +78,11 @@ AABB
 AAAA
 AABB
 BBBB
-CCDD
 Data after block 1 is deleted:
 AABB
 0000
 AABB
 BBBB
-CCDD
 Reconstructed block 1:AAAA
 
 Test 8: Tests restore_block on a block with mixed charaters.
@@ -66,17 +95,17 @@ AABB
 AAAA
 AABB
 BBBB
-CCDD
 Data after block 0 is deleted:
 0000
 AAAA
 AABB
 BBBB
-CCDD
 Reconstructed block 0:AABB
 
-Test 9: Tests restore_block on a unique block at the end of the file.
-This test is different from previous tests because it verifies restoration of a block that has completely different characters from all other blocks.
+Test 9: Tests restore_block on a block at the end of the file.
+This test is different from the previous tests because instead of reconstructing a block
+at the start or middle of the file, it deletes and recovers it from the end, allowing us
+to verify functionlity for this edge case.
 ./restore_block 4 4 test_strings.txt 3
 Expected output:
 Data before block 3 is deleted:
