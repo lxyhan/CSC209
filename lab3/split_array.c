@@ -13,12 +13,16 @@
 int **split_array(const int *s, int length)
 {
   int **result = malloc(2 * sizeof(int *));
+  // allocate memory for the two arrays
 
   int even_size = (length + 1) / 2;
   int odd_size = length / 2;
+  // calculates the size of each array to allocate memory dynamically
+
 
   result[0] = malloc(even_size * sizeof(int));
   result[1] = malloc(odd_size * sizeof(int));
+  // allocate memory for the two arrays with the right sizes
 
   int even_pointer = 0;
   int odd_pointer = 0;

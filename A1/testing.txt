@@ -1,0 +1,92 @@
+Test 1: Test that get_data 
+
+
+Test 4: Test that compute_parity_block will work on a general case with data from quotes.txt.
+This test is good because it verifies the basic calculation for compte_parity_block.
+It has a mix of identical characters and differing characters in the same position of each row.
+For instance, the first char in all 3 rows read is the quotation mark, and thus the parity would its ASCII representation
+./compute_parity 3 4 quotes.txt
+Expected output:
+Data blocks: 
+"Hum
+"Com
+"Com
+Parity block:
+22 48 75 6d
+
+Test 5: Test that compute_parity_block will work on 4 identical blocks from quotes.txt.
+This test is good for testing an edge case, where we test 4 single identical elements.
+Since there are four identical elements, we expect its parity number to be 00.
+./compute_parity 4 1 quotes.txt
+Expected output:
+Data blocks:
+"
+"
+"
+"
+Parity block:
+00
+
+Test 6: Test compute_parity_block on a larger number of blocks correctly.
+This test is good because it tests whether the function can handle a larger number of blocks (18 characters).
+This differts from previous tests which used small blocks of 1-4 characters.
+Expected output:
+Data blocks:
+"Humans are allerg
+"Computers are inc
+Parity block:
+00 0b 1a 00 11 1b 07 45 13 01 45 41 13 09 4c 0c 1c 04
+
+Test 7: Test restore_block on a fully identical block in test_strings.txt, a simpler and smaller version of quotes.txt.
+This test is good because it tests restore_block by deleting a block with all the same chacaters by deleting block 1
+in a file containing blocks with a diverse set of chacaters.
+./restore_block 4 4 test_strings.txt 1
+Expected output:
+Data before block 1 is deleted:
+AABB
+AAAA
+AABB
+BBBB
+CCDD
+Data after block 1 is deleted:
+AABB
+0000
+AABB
+BBBB
+CCDD
+Reconstructed block 1:AAAA
+
+Test 8: Tests restore_block on a block with mixed charaters.
+This is different from the previous test, which deleted a block of identical characters.
+This test is good to verify that the restoration functionality still works if a block with mixed characters are removed.
+./restore_block 4 4 test_strings.txt 0
+Expected output:
+Data before block 0 is deleted:
+AABB
+AAAA
+AABB
+BBBB
+CCDD
+Data after block 0 is deleted:
+0000
+AAAA
+AABB
+BBBB
+CCDD
+Reconstructed block 0:AABB
+
+Test 9: Tests restore_block on a unique block at the end of the file.
+This test is different from previous tests because it verifies restoration of a block that has completely different characters from all other blocks.
+./restore_block 4 4 test_strings.txt 3
+Expected output:
+Data before block 3 is deleted:
+AABB
+AAAA
+AABB
+BBBB
+Data after block 3 is deleted:
+AABB
+AAAA
+AABB
+0000
+Reconstructed block 3:BBBB
