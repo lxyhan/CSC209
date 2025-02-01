@@ -12,6 +12,8 @@
     the string "fun" and returns 5.
 */
 
+int truncate(char *s, int num);
+
 int main(int argc, char **argv)
 {
     /* Do not change the main function */

@@ -25,7 +25,7 @@
     "Who?What?Where?"       "Who?What?Where"        1
 */
 
-// Write the function strip_q_marks here
+int strip_q_marks(char *s);
 
 int main(int argc, char **argv)
 {
@@ -44,14 +44,15 @@ int strip_q_marks(char *s)
 {
     int length = strlen(s);
     int count = 0;
+
     for (int i = length - 1; i >= 0; i--)
     {
-        s[i] = '\0';
-        count++;
         if (s[i] != '?')
         {
             break;
         }
+        s[i] = '\0';
+        count++;
     }
     return count;
 }

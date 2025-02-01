@@ -19,14 +19,16 @@ int main(int argc, char *argv[])
 {
     if (argc != 3)
     {
-        print("Invalid\n");
+        printf("Invalid\n");
     }
-    else if (argv[1] != argv[2])
+    else if (strcmp(argv[1], argv[2]) != 0)
     {
-        print("Different\n");
+        printf("Different\n");
     }
     else
     {
-        print("Same\n");
+        printf("Same\n");
     }
+
+    return 0;
 }
