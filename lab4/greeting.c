@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 /*
     This program has two arguments: the first is a greeting message, and the
     second is a name.
@@ -28,8 +27,10 @@
     code where indicated.
 */
 
-int main(int argc, char **argv) {
-    if (argc != 3) {
+int main(int argc, char **argv)
+{
+    if (argc != 3)
+    {
         fprintf(stderr, "Usage: greeting message name\n");
         return 1;
     }
@@ -38,9 +39,11 @@ int main(int argc, char **argv) {
 
     // Your code goes here
 
+    strncpy(greeting, argv[1], 19);
+    greeting[19] = '\0';
+    strncat(greeting, " ", 1);
+    strncat(greeting, name, 19 - strlen(greeting));
 
     printf("%s\n", greeting);
     return 0;
 }
-
-

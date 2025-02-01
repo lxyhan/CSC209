@@ -14,3 +14,19 @@
 
     Your main function should return 0, regardless of what's printed.
 */
+
+int main(int argc, char *argv[])
+{
+    if (argc != 3)
+    {
+        print("Invalid\n");
+    }
+    else if (argv[1] != argv[2])
+    {
+        print("Different\n");
+    }
+    else
+    {
+        print("Same\n");
+    }
+}

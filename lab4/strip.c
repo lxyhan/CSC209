@@ -27,14 +27,31 @@
 
 // Write the function strip_q_marks here
 
-
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     // Do not change this main function.
-    if (argc != 2) {
+    if (argc != 2)
+    {
         fprintf(stderr, "Usage: strip message\n");
         return 1;
     }
     int result = strip_q_marks(argv[1]);
     printf("%s %d\n", argv[1], result);
     return 0;
+}
+
+int strip_q_marks(char *s)
+{
+    int length = strlen(s);
+    int count = 0;
+    for (int i = length - 1; i >= 0; i--)
+    {
+        s[i] = '\0';
+        count++;
+        if (s[i] != '?')
+        {
+            break;
+        }
+    }
+    return count;
 }

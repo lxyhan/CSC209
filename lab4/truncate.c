@@ -12,11 +12,11 @@
     the string "fun" and returns 5.
 */
 
-
-
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     /* Do not change the main function */
-    if (argc != 3) {
+    if (argc != 3)
+    {
         fprintf(stderr, "Usage: truncate number string\n");
         return 1;
     }
@@ -28,4 +28,16 @@ int main(int argc, char **argv) {
     printf("%d %s\n", soln_val, target);
 
     return 0;
+}
+
+int truncate(char *s, int num)
+{
+    int length = strlen(s);
+    if (length <= num)
+    {
+        return 0;
+    }
+
+    s[num] = '\0';
+    return length - num;
 }
