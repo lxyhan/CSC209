@@ -15,3 +15,7 @@ lab4/greeting.c false
 lab4/strip.c false
 lab4/truncate.c false
 lab4/compare.c false
+lab5/bitmap_printer.c false
+lab5/bitmap.c false
+lab5/Makefile false
+lab5/bitmap.h false
