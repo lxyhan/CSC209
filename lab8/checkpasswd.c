@@ -20,7 +20,7 @@ int main(void)
   /* The user will type in a user name on one line followed by a password
      on the next.
      DO NOT add any prompts.  The only output of this program will be one
-   of the messages defined above.
+     of the messages defined above.
      Please read the comments in validate carefully
    */
 
@@ -75,18 +75,8 @@ int main(void)
   else
   {
     close(fd[0]);
-
-    if (write(fd[1], user_id, strlen(user_id)) == -1)
-    {
-      perror("write");
-      exit(1);
-    }
-
-    if (write(fd[1], password, strlen(password)) == -1)
-    {
-      perror("write");
-      exit(1);
-    }
+    write(fd[1], user_id, MAX_PASSWORD);
+    write(fd[1], password, MAX_PASSWORD);
 
     close(fd[1]);
 
