@@ -1,0 +1,30 @@
+Testing Document CSC209 Assignment 2 Garbage Collection
+
+Test Cases for Linked Lists
+
+1. Adding and then removing all Nodes (test_list_trans1.txt):
+This test case adds three nodes to the list (1, 2, 3), removes all 3 nodes. After calling Mark and Sweep, we expect there to be no memory still allocated.
+
+2. Adding and then not removing all Nodes (test_list_trans2.txt):
+This test case adds three nodes to the list (1, 2, 3), and removes only the middle node (2). After calling Mark and Sweep, we expect the memory for node 2
+to be freed while nodes 1 and 3 remain in memory. This tests to see whether only unreachable nodes are cleaned.
+
+3. Empty List (test_list_trans3.txt):
+This test case tests whether the mark and sweep algorithm works on an edge case, the empty list.
+No memory should be allocated or freed.
+
+Test Cases for Fs Trees
+
+Basic Tree Structure with Removal (test_fstree_trans1.txt):
+We create a root with two subdirectory, and with two files under one subdirectory.
+If we remove one subdirectory, garbage collection should free that subdirectory and its files from memory, while keeping the other in memory.
+This tests the basic functionality of mark and sweep on reachable and unreachable nodes in an fs tree.
+
+Tree with Cycles (test_fstree_trans2.txt):
+This test case creates a directory with a file, and then another directory with a link to that file using the add_hard_link function.
+When the first directory is removed, the file should remain reachable through the link.
+This tests that the garbage collector properly handles nodes with multiple paths of access.
+
+Removing Middle Node on a deeply Nested Tree (test_fstree_trans3.txt):
+This test case creates a fstree with 5 levels and removes a middle directory, making all deeper directories unreachable.
+This tests that garbage collection properly traverses the tree and identifies unreachable nodes at multiple levels.
