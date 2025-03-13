@@ -96,7 +96,7 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *))
         if (!curr->in_use)
         {
             // if the chunk is not in use, we can free it from memory
-            struct mem_chunk *to_free = curr;
+            struct mem_chunk *chunk_to_free = curr;
 
             if (prev == NULL)
             {
@@ -112,8 +112,8 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *))
             }
 
             // free the adress of the chunk and the chunk itself
-            free(to_free->address);
-            free(to_free);
+            free(chunk_to_free->address);
+            free(chunk_to_free);
 
             chunks_freed++;
         }
