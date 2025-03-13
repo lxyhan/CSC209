@@ -151,7 +151,7 @@ int mark_one(void *vptr)
     {
         if (current->address == vptr)
         {
-            // Found the chunk
+            // found the chunk to be marked
             if (current->in_use)
             {
                 return 1; // if it's already marked as in use, return 1 for cycle detection
