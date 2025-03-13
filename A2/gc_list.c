@@ -9,14 +9,14 @@
  */
 void mark_list(void *head)
 {
-    List *current = (List *)head;
+    List *curr = (List *)head;
 
-    while (current != NULL)
+    while (curr != NULL)
     {
         // Mark the current node as in use
-        mark_one(current);
+        mark_one(curr);
 
         // Continue to the next node
-        current = current->next;
+        curr = curr->next;
     }
 }

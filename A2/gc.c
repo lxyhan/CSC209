@@ -61,8 +61,8 @@ void *gc_malloc(int nbytes)
 void mark_and_sweep(void *obj, void (*mark_obj)(void *))
 {
     FILE *logfile;
-    int freed_count = 0;
-    int still_allocated = 0;
+    int chunks_freed = 0;
+    int chunks_still_allocated = 0;
 
     logfile = fopen(LOGFILE, "a");
     if (logfile == NULL)
@@ -74,11 +74,11 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *))
     fprintf(logfile, "Mark_and_sweep running\n");
 
     // first we reset all the in use flags to 0, meaning not in use
-    struct mem_chunk *current = memory_list_head;
-    while (current != NULL)
+    struct mem_chunk *curr = memory_list_head;
+    while (curr != NULL)
     {
-        current->in_use = 0;
-        current = current->next;
+        curr->in_use = 0;
+        curr = curr->next;
     }
 
     // then we traverse the data structure and mark reachable nodes
@@ -89,46 +89,46 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *))
 
     // finally we free unreachable nodes in memory
     struct mem_chunk *prev = NULL;
-    current = memory_list_head;
+    curr = memory_list_head;
 
-    while (current != NULL)
+    while (curr != NULL)
     {
-        if (!current->in_use)
+        if (!curr->in_use)
         {
             // if the chunk is not in use, we can free it from memory
-            struct mem_chunk *to_free = current;
+            struct mem_chunk *to_free = curr;
 
             if (prev == NULL)
             {
                 // case one: head of the list
-                memory_list_head = current->next;
-                current = memory_list_head;
+                memory_list_head = curr->next;
+                curr = memory_list_head;
             }
             else
             {
                 // case two: not the head of the list
-                prev->next = current->next;
-                current = current->next;
+                prev->next = curr->next;
+                curr = curr->next;
             }
 
             // free the adress of the chunk and the chunk itself
             free(to_free->address);
             free(to_free);
 
-            freed_count++;
+            chunks_freed++;
         }
         else
         {
             // if the chunk is still in use, keep it in memory
-            still_allocated++;
-            prev = current;
-            current = current->next;
+            chunks_still_allocated++;
+            prev = curr;
+            curr = curr->next;
         }
     }
 
     // lastly we log the results in the logfile
-    fprintf(logfile, "Chunks freed this pass: %d\n", freed_count);
-    fprintf(logfile, "Chunks still allocated: %d\n", still_allocated);
+    fprintf(logfile, "Chunks freed this pass: %d\n", chunks_freed);
+    fprintf(logfile, "Chunks still allocated: %d\n", chunks_still_allocated);
 
     fclose(logfile);
 }
@@ -145,24 +145,24 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *))
  */
 int mark_one(void *vptr)
 {
-    struct mem_chunk *current = memory_list_head;
+    struct mem_chunk *curr = memory_list_head;
 
-    while (current != NULL)
+    while (curr != NULL)
     {
-        if (current->address == vptr)
+        if (curr->address == vptr)
         {
             // found the chunk to be marked
-            if (current->in_use)
+            if (curr->in_use)
             {
                 return 1; // if it's already marked as in use, return 1 for cycle detection
             }
             else
             {
-                current->in_use = 1; // mark chunk as in use
-                return 0;            // return value 0 means that we successfuly marked an unmarked chunk
+                curr->in_use = 1; // mark chunk as in use
+                return 0;         // return value 0 means that we successfuly marked an unmarked chunk
             }
         }
-        current = current->next;
+        curr = curr->next;
     }
 
     // if chunk isn't found in memory, return an error to stderr

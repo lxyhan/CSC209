@@ -20,10 +20,10 @@ void mark_fstree(void *head)
         return;
     }
 
-    int mark_result = mark_one(node);
+    int result = mark_one(node);
 
     // if the return value of mark_one is 1, it's already been marked so we return to avoid a cycle
-    if (mark_result == 1)
+    if (result == 1)
     {
         return;
     }
@@ -35,17 +35,17 @@ void mark_fstree(void *head)
     }
 
     // traverse through all the links
-    Link *current_link = node->links;
-    while (current_link != NULL)
+    Link *curr_link = node->links;
+    while (curr_link != NULL)
     {
-        mark_one(current_link);
+        mark_one(curr_link);
 
         // recursively mark the subtree the link points to
-        if (current_link->fptr != NULL)
+        if (curr_link->fptr != NULL)
         {
-            mark_fstree(current_link->fptr);
+            mark_fstree(curr_link->fptr);
         }
 
-        current_link = current_link->next;
+        curr_link = curr_link->next;
     }
 }
