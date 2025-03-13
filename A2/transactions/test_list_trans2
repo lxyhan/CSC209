@@ -1,0 +1,9 @@
+# Adding and then not removing all Nodes
+a 1
+a 2
+a 3
+p
+r 2
+p
+g
+p

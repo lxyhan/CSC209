@@ -10,7 +10,42 @@
  * tree that we have already marked -- where hard links have created cycles
  */
 
-void mark_fstree(void *head) {
-    //TODO complete this function
+void mark_fstree(void *head)
+{
+    Fstree *node = (Fstree *)head;
 
+    // Base case, if the node is null return
+    if (node == NULL)
+    {
+        return;
+    }
+
+    int mark_result = mark_one(node);
+
+    // if the return value of mark_one is 1, it's already been marked so we return to avoid a cycle
+    if (mark_result == 1)
+    {
+        return;
+    }
+
+    // mark the node's name
+    if (node->name != NULL)
+    {
+        mark_one(node->name);
+    }
+
+    // traverse through all the links
+    Link *current_link = node->links;
+    while (current_link != NULL)
+    {
+        mark_one(current_link);
+
+        // recursively mark the subtree the link points to
+        if (current_link->fptr != NULL)
+        {
+            mark_fstree(current_link->fptr);
+        }
+
+        current_link = current_link->next;
+    }
 }

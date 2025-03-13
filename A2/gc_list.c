@@ -7,6 +7,16 @@
  * head is the head of the list data-structure being traversed NOT
  * the head of the memory-list which is part of gc
  */
-void mark_list(void *head) {
-    // TODO complete this function
+void mark_list(void *head)
+{
+    List *current = (List *)head;
+
+    while (current != NULL)
+    {
+        // Mark the current node as in use
+        mark_one(current);
+
+        // Continue to the next node
+        current = current->next;
+    }
 }

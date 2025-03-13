@@ -1,0 +1,9 @@
+n / dirA
+n /dirA fileA
+n / dirB
+h /dirB /dirA fileA
+p
+g
+r / dirA
+p
+g

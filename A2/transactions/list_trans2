@@ -1,5 +1,3 @@
-# add and delete several nodes
-# there should be 4 nodes to free and 1 node reachable
 a 2
 r 2
 a 1
