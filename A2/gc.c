@@ -57,7 +57,24 @@ void *gc_malloc(int nbytes)
 
 void mark_and_sweep(void *obj, void (*mark_obj)(void *))
 {
-    fprintf(logfile, "Mark_and_sweep running\n");
+    // Check if logfile is NULL and reopen if needed
+    if (logfile == NULL)
+    {
+        fprintf(stderr, "Error: logfile is NULL in mark_and_sweep\n");
+        logfile = fopen("gc.log", "a");
+        if (logfile == NULL)
+        {
+            fprintf(stderr, "Failed to reopen logfile, continuing without logging\n");
+            // Continue execution but skip logging
+        }
+    }
+
+    // Only try to write to logfile if it's not NULL
+    if (logfile != NULL)
+    {
+        fprintf(logfile, "Mark_and_sweep running\n");
+    }
+
     int chunks_freed = 0;
     int chunks_allocated = 0;
 
@@ -97,8 +114,17 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *))
         }
     }
 
-    fprintf(logfile, "Chunks freed this pass: %d\n", chunks_freed);
-    fprintf(logfile, "Chunks still allocated: %d\n", chunks_allocated);
+    // Only try to write to logfile if it's not NULL
+    if (logfile != NULL)
+    {
+        fprintf(logfile, "Chunks freed this pass: %d\n", chunks_freed);
+        fprintf(logfile, "Chunks still allocated: %d\n", chunks_allocated);
+    }
+    else
+    {
+        fprintf(stderr, "Chunks freed: %d, Chunks still allocated: %d\n",
+                chunks_freed, chunks_allocated);
+    }
 }
 
 /*
