@@ -4,15 +4,44 @@
 
 // global variable to be head of allocated pieces
 struct mem_chunk *memory_list_head = NULL;
+FILE *logfile = NULL;
+
+void init_gc()
+{
+    logfile = fopen("gc.log", "w");
+    if (logfile == NULL)
+    {
+        perror("Could not open log file");
+        exit(1);
+    }
+}
 
 // global variable for debugging
 int debug = 0;
 
-void *gc_malloc(int nbytes) {
-    //TODO complete this function
+void *gc_malloc(int nbytes)
+{
+    void *ptr = malloc(nbytes);
+    if (ptr == NULL)
+    {
+        perror("malloc failed in gc_malloc");
+        return NULL;
+    }
 
-    return NULL; // return the correct value in your implementation
+    struct mem_chunk *new_node = malloc(sizeof(struct mem_chunk));
+    if (new_node == NULL)
+    {
+        perror("malloc failed in gc_malloc for memory tracking");
+        free(ptr); // Free the first allocation since we can't track it
+        return NULL;
+    }
 
+    new_node->address = ptr;
+    new_node->in_use = 1;
+    new_node->next = memory_list_head;
+    memory_list_head = new_node;
+
+    return ptr;
 }
 
 /* Executes the garbage collector.
@@ -26,9 +55,50 @@ void *gc_malloc(int nbytes) {
  * "Chunks still allocated: %d\n"
  */
 
-void mark_and_sweep(void *obj, void (*mark_obj)(void *)) {
-    // TODO implement the mark_and_sweep algorithm
+void mark_and_sweep(void *obj, void (*mark_obj)(void *))
+{
+    fprintf(logfile, "Mark_and_sweep running\n");
+    int chunks_freed = 0;
+    int chunks_allocated = 0;
 
+    // 1) RESET: Mark all nodes as not in use
+    struct mem_chunk *curr = memory_list_head;
+    while (curr != NULL)
+    {
+        curr->in_use = NOT_USED;
+        curr = curr->next;
+    }
+
+    // 2) MARK: Traverse the data structure and mark reachable nodes
+    if (obj != NULL)
+    {
+        mark_obj(obj);
+    }
+
+    // 3) SWEEP: Free all unmarked nodes
+    struct mem_chunk **pp = &memory_list_head;
+    while (*pp != NULL)
+    {
+        if ((*pp)->in_use == NOT_USED)
+        {
+            // This node is unreachable, free it
+            struct mem_chunk *to_free = *pp;
+            *pp = to_free->next; // Remove from list
+
+            free(to_free->address); // Free the allocated memory
+            free(to_free);          // Free the chunk node
+            chunks_freed++;
+        }
+        else
+        {
+            // This node is still in use
+            pp = &((*pp)->next);
+            chunks_allocated++;
+        }
+    }
+
+    fprintf(logfile, "Chunks freed this pass: %d\n", chunks_freed);
+    fprintf(logfile, "Chunks still allocated: %d\n", chunks_allocated);
 }
 
 /*
@@ -41,17 +111,44 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *)) {
    Here is a print statement to print an error message:
    fprintf(stderr, "ERROR: mark_one address not in memory list\n");
  */
-int mark_one(void *vptr) {
+int mark_one(void *vptr)
+{
     // TODO complete this function
-
-    return 0; // return the correct value in your implementation
+    struct mem_chunk *current = memory_list_head;
+    while (current != NULL)
+    {
+        if (current->address == vptr)
+        {
+            if (current->in_use == USED)
+            {
+                return 1;
+            }
+            else
+            {
+                current->in_use = USED;
+                return 0;
+            }
+        }
+        current = current->next;
+    }
+    return 2; // chunk is not found
 }
 
-void print_memory_list() {
+void print_memory_list()
+{
     struct mem_chunk *current = memory_list_head;
-    while (current != NULL) {
-        printf("%lx (%d) -> ",(unsigned long) current->address, current->in_use);
+    while (current != NULL)
+    {
+        printf("%lx (%d) -> ", (unsigned long)current->address, current->in_use);
         current = current->next;
     }
     printf("\n");
+}
+
+void cleanup_gc()
+{
+    if (logfile != NULL)
+    {
+        fclose(logfile);
+    }
 }
