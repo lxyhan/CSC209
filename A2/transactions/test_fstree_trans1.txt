@@ -1,9 +1,9 @@
-n / dirA
-n /dirA fileA
-n /dirA fileB
-n / dirB
+a dirA
+a fileA dirA
+a fileB dirA
+a dirB
 p
 g
-r / dirA
+r dirA
 p
 g

@@ -1,10 +1,10 @@
-n / dirA
-n /dirA dirB
-n /dirA/dirB dirC
-n /dirA/dirB/dirC dirD
-n /dirA/dirB/dirC/dirD fileA
+a dirA
+a dirB dirA
+a dirC dirA/dirB
+a dirD dirA/dirB/dirC
+a fileA dirA/dirB/dirC/dirD
 p
 g
-r /dirA/dirB/dirC
+r dirC dirA/dirB
 p
 g
