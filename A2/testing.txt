@@ -12,6 +12,8 @@ to be freed while nodes 1 and 3 remain in memory. This tests to see whether only
 3. Empty List (test_list_trans3.txt):
 This test case tests whether the mark and sweep algorithm works on an edge case, the empty list.
 No memory should be allocated or freed.
+Note: Valgrind will return an error, but this is due to the starter code in list.c and reading from an empty list. The memory mark and sweep
+algorithm handles this gracefully and does not result in any issues with memory allocation.
 
 Test Cases for Fs Trees
 
