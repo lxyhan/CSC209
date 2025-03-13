@@ -20,11 +20,15 @@ extern int debug;
 #define NOT_USED 0
 #define USED 1
 
-struct mem_chunk {
+struct mem_chunk
+{
     int in_use;
     void *address;
     struct mem_chunk *next;
 };
+
+void init_gc();
+void cleanup_gc();
 
 /* A wrapper around malloc to keep track of dynamically allocated memory
  */
@@ -44,5 +48,7 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *));
  *   2 if memory chunk pointed to by vptr was not found in memory list
  */
 int mark_one(void *vptr);
+
+void print_memory_list();
 
 #endif // __GC_H__

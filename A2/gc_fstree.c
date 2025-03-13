@@ -10,7 +10,7 @@
  * tree that we have already marked -- where hard links have created cycles
  */
 
-void mark_fstree(void *head) {
-    //TODO complete this function
-
+void mark_fstree(void *head)
+{
+    // TODO complete this function
 }

@@ -1,12 +1,12 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
-struct node {
+struct node
+{
     int value;
-    struct node * next;
+    struct node *next;
 };
 typedef struct node List;
-
 
 int is_empty(List *);
 int length(List *);
