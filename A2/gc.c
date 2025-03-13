@@ -8,14 +8,29 @@ FILE *logfile = NULL;
 
 void init_gc()
 {
+    fprintf(stderr, "Initializing garbage collector...\n");
+
+    // Check if already initialized
+    if (logfile != NULL)
+    {
+        fprintf(stderr, "GC already initialized, logfile exists\n");
+        return;
+    }
+
     logfile = fopen("gc.log", "w");
     if (logfile == NULL)
     {
-        perror("Could not open log file");
-        exit(1);
+        fprintf(stderr, "ERROR: Could not open log file: ");
+        perror("");
+        // Don't exit - attempt to continue without logging
+    }
+    else
+    {
+        fprintf(stderr, "Successfully opened gc.log\n");
+        fprintf(logfile, "Garbage collector initialized\n");
+        fflush(logfile); // Force write to disk
     }
 }
-
 // global variable for debugging
 int debug = 0;
 
