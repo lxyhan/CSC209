@@ -130,7 +130,11 @@ void mark_and_sweep(void *obj, void (*mark_obj)(void *))
     fprintf(logfile, "Chunks freed this pass: %d\n", chunks_freed);
     fprintf(logfile, "Chunks still allocated: %d\n", chunks_still_allocated);
 
-    fclose(logfile);
+    // error checking for fclose system call
+    if (fclose(logfile) != 0)
+    {
+        perror("error closing log file");
+    }
 }
 
 /*
