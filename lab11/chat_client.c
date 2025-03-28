@@ -1,87 +1,113 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
+#include <string.h>
+#include <sys/select.h>
 
 #ifndef PORT
-  #define PORT 30000
+#define PORT 30000
 #endif
 #define BUF_SIZE 128
 
-int main(void) {
-    // Create the socket FD.
+int main(void)
+{
+    // Create socket
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock_fd < 0) {
+    if (sock_fd < 0)
+    {
         perror("client: socket");
         exit(1);
     }
 
-    // Set the IP and port of the server to connect to.
+    // Set up server address
     struct sockaddr_in server;
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
-    if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr) < 1) {
+    if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr) < 1)
+    {
         perror("client: inet_pton");
         close(sock_fd);
         exit(1);
     }
 
-    // Connect to the server.
-    if (connect(sock_fd, (struct sockaddr *)&server, sizeof(server)) == -1) {
+    // Connect to server
+    if (connect(sock_fd, (struct sockaddr *)&server, sizeof(server)) == -1)
+    {
         perror("client: connect");
         close(sock_fd);
         exit(1);
     }
 
-    // Get the user to provide a name.
-    char buf[2 * BUF_SIZE + 2]; // 2x to allow for usernames
+    // Send username to server
+    char buf[2 * BUF_SIZE + 2]; // Extra space for username prefixes
     printf("Please enter a username: ");
     fflush(stdout);
+
     int num_read = read(STDIN_FILENO, buf, BUF_SIZE);
-    if (num_read == 0) {
+    if (num_read == 0)
+    {
         close(sock_fd);
         exit(0);
     }
-    buf[num_read] = '\0';
-    if (write(sock_fd, buf, num_read) != num_read) {
+
+    if (write(sock_fd, buf, num_read) != num_read)
+    {
         perror("client: write");
         close(sock_fd);
         exit(1);
     }
 
-    /* Task 3: Monitor stdin and the socket using select to avoid blocking
-     * on either one.
-     */
+    // Set up for select() - monitor both stdin and socket
+    fd_set all_fds;
+    FD_ZERO(&all_fds);
+    FD_SET(STDIN_FILENO, &all_fds);
+    FD_SET(sock_fd, &all_fds);
 
-    // Read input from the user and send it to the server. Echo any output
-    // received from the server.
-    while (1) {
-        num_read = read(STDIN_FILENO, buf, BUF_SIZE);
-        if (num_read == 0) {
-            break;
-        }
-        buf[num_read] = '\0';
+    int max_fd = (sock_fd > STDIN_FILENO) ? sock_fd : STDIN_FILENO;
 
-        /*
-         * We should really send "\r\n" too, so the server can identify partial
-         * reads, but you are not required to handle partial reads in this lab.
-         */
-        if (write(sock_fd, buf, num_read) != num_read) {
-            perror("client: write");
-            close(sock_fd);
+    while (1)
+    {
+        fd_set read_fds = all_fds;
+
+        if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1)
+        {
+            perror("client: select");
             exit(1);
         }
 
-        num_read = read(sock_fd, buf, sizeof(buf) - 1);
-        if (num_read == 0) {
-            break;
+        // Handle user input
+        if (FD_ISSET(STDIN_FILENO, &read_fds))
+        {
+            num_read = read(STDIN_FILENO, buf, BUF_SIZE);
+            if (num_read == 0)
+            {
+                break; // EOF on stdin
+            }
+
+            if (write(sock_fd, buf, num_read) != num_read)
+            {
+                perror("client: write");
+                close(sock_fd);
+                exit(1);
+            }
         }
-        buf[num_read] = '\0';
-        printf("[Server] %s", buf);
+
+        // Handle server messages
+        if (FD_ISSET(sock_fd, &read_fds))
+        {
+            num_read = read(sock_fd, buf, sizeof(buf) - 1);
+            if (num_read == 0)
+            {
+                printf("Server closed connection\n");
+                break;
+            }
+
+            buf[num_read] = '\0';
+            printf("[Server] %s", buf);
+        }
     }
 
     close(sock_fd);
