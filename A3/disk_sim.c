@@ -16,9 +16,7 @@
 #include <unistd.h>
 #include "raid.h"
 
-
-int debug = 1;  // Set to 1 to enable debug output, 0 to disable
-
+int debug = 1; // Set to 1 to enable debug output, 0 to disable
 
 /*
  * Main function for the disk simulation process, which runs in a child process
@@ -30,37 +28,82 @@ int debug = 1;  // Set to 1 to enable debug output, 0 to disable
  *
  * Returns 0 on success and 1 on failure.
  */
-int start_disk(int id, int to_parent, int from_parent) {
+int start_disk(int id, int to_parent, int from_parent)
+{
     int status = 0;
 
     // Allocate memory for disk data
-    // TODO
+    char disk_data[disk_size];
+    memset(disk_data, 0, disk_size);
+
+    if (debug)
+    {
+        printf("[%d] Waiting for command\n", id);
+    }
 
     // Main command loop to handle requests from the parent.
     // This is an infinite loop that is only terminated when
     // an exit command is received.
-    while (1) {
+    while (1)
+    {
         disk_command_t cmd;
 
-        // Read command from the parent
-        // TODO
+        // Read command through the pipe from the parent
+        ssize_t cmd_return = read(from_parent, &cmd, sizeof(cmd));
+
+        // if read fails
+        if (cmd_return != sizeof(cmd))
+        {
+            fprintf(stderr, "[%d] Error reading command\n", id);
+            status = 1;
+            break;
+        }
 
         // The type of command received from the parent
         // determines which action is taken next.
-        switch (cmd) {
-            case CMD_READ:
-                // TODO: Handle READs
-                break;
-            case CMD_WRITE:
-                // TODO: Handle WRITEs
-                break;
-            case CMD_EXIT:
-                // TODO: Handle EXITs
-                break;
-            default:
-                fprintf(stderr, "Error: Unknown command %d received\n", cmd);
+        switch (cmd)
+        {
+        case CMD_READ:
+            // TODO: Handle READs
+
+            // We first need to read the stripe number from the parent process
+            int stripe_num;
+            ssize_t bytes_read = read(from_parent, &stripe_num, sizeof(stripe_num));
+            if (bytes_read != sizeof(stripe_num))
+            {
+                fprintf(stderr, "[%d] Error reading stripe number\n", id);
                 status = 1;
                 break;
+            }
+
+            // debug message
+            if (debug)
+            {
+                printf("[%d] cmd: %d. Block num: %d, size: %d\n", id, CMD_READ, stripe_num, block_size);
+                printf("[%d] Writing data to parent. Block num: %d\n", id, stripe_num);
+            }
+
+            // Then, we return the block data, by indexing disk_data at the stripe location
+            ssize_t bytes_written = write(to_parent, &disk_data[stripe_num * block_size], block_size);
+            if (bytes_written != block_size)
+            {
+                fprintf(stderr, "[%d] Error writing block data to parent\n", id);
+                status = 1;
+                break;
+            }
+
+            break;
+
+        case CMD_WRITE:
+            // TODO: Handle WRITEs
+            break;
+        case CMD_EXIT:
+            // TODO: Handle EXITs
+            break;
+        default:
+            fprintf(stderr, "Error: Unknown command %d received\n", cmd);
+            status = 1;
+            break;
         }
     }
 
@@ -74,37 +117,46 @@ int start_disk(int id, int to_parent, int from_parent) {
  *
  * Returns 0 on success, and -1 on failure.
  */
-static int checkpoint_disk(char *disk_data, int id) {
-    if (!disk_data) {
+static int checkpoint_disk(char *disk_data, int id)
+{
+    if (!disk_data)
+    {
         fprintf(stderr, "Error: Invalid parameters for checkpoint\n");
         return -1;
     }
 
     // Create a file name for this disk
     char disk_name[MAX_NAME];
-    if (snprintf(disk_name, sizeof(disk_name), "disk_%d.dat", id) >= (int)sizeof(disk_name)) {
+    if (snprintf(disk_name, sizeof(disk_name), "disk_%d.dat", id) >= (int)sizeof(disk_name))
+    {
         fprintf(stderr, "Error: Disk name too long for disk %d\n", id);
         return 1;
     }
 
     FILE *fp = fopen(disk_name, "wb");
-    if (!fp) {
+    if (!fp)
+    {
         perror("Failed to create checkpoint file");
         return -1;
     }
 
     size_t bytes_written = fwrite(disk_data, 1, disk_size, fp);
-    if (bytes_written != (size_t)disk_size) {
-        if (ferror(fp)) {
+    if (bytes_written != (size_t)disk_size)
+    {
+        if (ferror(fp))
+        {
             fprintf(stderr, "Failed to write checkpoint data");
-        } else {
+        }
+        else
+        {
             fprintf(stderr, "Error: Incomplete write during checkpoint\n");
         }
         fclose(fp);
         return -1;
     }
 
-    if (fclose(fp) != 0) {
+    if (fclose(fp) != 0)
+    {
         perror("Failed to close checkpoint file");
         return -1;
     }
