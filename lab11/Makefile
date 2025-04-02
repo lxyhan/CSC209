@@ -1,4 +1,4 @@
-PORT=30001
+PORT=51989
 CFLAGS = -DPORT=$(PORT) -g -Wall 
 
 all: chat_server chat_client

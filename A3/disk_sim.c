@@ -96,10 +96,59 @@ int start_disk(int id, int to_parent, int from_parent)
 
         case CMD_WRITE:
             // TODO: Handle WRITEs
+
+            // We first need to read the stripe number from the parent process
+            int stripe_num;
+            ssize_t bytes_read = read(from_parent, &stripe_num, sizeof(stripe_num));
+            if (bytes_read != sizeof(stripe_num))
+            {
+                fprintf(stderr, "[%d] Error reading stripe number\n", id);
+                status = 1;
+                break;
+            }
+
+            // Debug message
+            if (debug)
+            {
+                printf("[%d] Read block from pipe. Block num: %d, size: %d\n", id, stripe_num, block_size);
+                printf("[%d] Writing data to disk. Block num: %d, size: %d\n", id, stripe_num, block_size);
+            }
+
+            // We then need to read the actual block data to be written;
+            // calculate where in the disk_data array this block should be stored
+            char *block_storage_location = &disk_data[stripe_num * block_size];
+
+            // read the block data from the parent process through the pipe
+            // and store it into the calculated location in disk_data
+            ssize_t bytes_read_from_parent = read(from_parent, block_storage_location, block_size);
+
+            // erorr checking to see if we received the expected amount of data
+            if (bytes_read_from_parent != block_size)
+            {
+                fprintf(stderr, "[%d] Error reading block data from parent\n", id);
+                status = 1;
+                break;
+            }
             break;
+
         case CMD_EXIT:
             // TODO: Handle EXITs
+
+            // before we exit, we need to first checkpoint the disk
+            if (checkpoint_disk(disk_data, id) != 0)
+            {
+                fprintf(stderr, "[%d] Error when checkpointing disk\n", id);
+                status = 1;
+            }
+
+            if (debug)
+            {
+                printf("[%d] Checkpointed disk successfully\n", id);
+            }
+
+            return status;
             break;
+
         default:
             fprintf(stderr, "Error: Unknown command %d received\n", cmd);
             status = 1;

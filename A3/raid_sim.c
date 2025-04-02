@@ -149,10 +149,17 @@ static int copy_block_to_raid(int block_num, char *filename)
     }
 
     // Allocate buffer dynamically
+    // the buffer is just a fancy word for a variable that stores data temporarily
     char buffer[block_size];
 
     // Read the first block_size bytes from the file
+    // we read only the block_size byte, since we want to store the file info in the block
+    // fp is the file pointer
+    // 1 is the size of each element (so we read block_size elements)
+    // the return value of fread is actually just the # of elements read
+    // but in this case the # of elements and the # of bytes are the same, since size is 1
     size_t bytes_read = fread(buffer, 1, block_size, fp);
+    // if we don't manage to fill up the block, we return an error dependent on what happens
     if (bytes_read < (size_t)block_size)
     {
         if (ferror(fp))
@@ -167,13 +174,16 @@ static int copy_block_to_raid(int block_num, char *filename)
         return -1;
     }
 
+    // call write block from controller.c to write the data to the block
     if (write_block(block_num, buffer) != 0)
+    // error checking, if the return value of write_block is not equal to 0 (success)
     {
         fprintf(stderr, "Failed to write block to RAID");
+        // close the file
         fclose(fp);
         return -1;
     }
-
+    // else, if write_block succeeded
     fclose(fp);
     fprintf(stderr, "Block %d written to RAID\n", block_num);
     return 0;
