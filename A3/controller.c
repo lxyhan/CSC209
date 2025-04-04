@@ -369,8 +369,6 @@ int write_block(int block_num, char *data)
         return -1;
     }
 
-    int stripe_num = block_num / num_disks;
-
     // buffers for old_data and the parity
     char old_data[block_size];
     char parity_data[block_size];
