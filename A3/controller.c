@@ -471,6 +471,12 @@ void simulate_disk_failure(int disk_num)
         printf("Simulate: killing disk %d\n", disk_num);
     }
     kill(controllers[disk_num].pid, SIGINT);
+
+    // avoiding a race condition (from faq)
+    if (waitpid(controllers[disk_num].pid, NULL, 0) == -1)
+    {
+        perror("simulate_disk_failure: waitpid");
+    }
 }
 
 /* Restore the disk process after it has been killed.
