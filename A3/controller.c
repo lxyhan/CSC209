@@ -116,18 +116,59 @@ int restart_disk(int num)
 {
     ignore_sigpipe();
 
-    // TODO: Complete this function
+    // Close the old pipe ends that the parent was using
+    // (we'll create new ones)
+    close(controllers[num].to_disk[1]);   // Write end used by parent
+    close(controllers[num].from_disk[0]); // Read end used by parent
 
-    // need to close these two
-    close(controllers[num].to_disk[0]);
-    close(controllers[num].from_disk[1]);
+    // Create new pipes for communication
+    if (pipe(controllers[num].to_disk) < 0)
+    {
+        perror("Failed to create to_disk pipe");
+        return -1;
+    }
 
-    // these are already closed
-    close(controllers[num].to_disk[1]);
-    close(controllers[num].from_disk[0]);
+    if (pipe(controllers[num].from_disk) < 0)
+    {
+        perror("Failed to create from_disk pipe");
+        close(controllers[num].to_disk[0]);
+        close(controllers[num].to_disk[1]);
+        return -1;
+    }
 
-    // call initialize disk again
-    return init_disk(num);
+    pid_t pid = fork();
+
+    // If fork failed
+    if (pid < 0)
+    {
+        // Error handling
+        perror("Failed to fork");
+        close(controllers[num].to_disk[0]);
+        close(controllers[num].to_disk[1]);
+        close(controllers[num].from_disk[0]);
+        close(controllers[num].from_disk[1]);
+        return -1;
+    }
+
+    // In child process
+    if (pid == 0)
+    {
+        // Close unused pipe ends
+        close(controllers[num].to_disk[1]);   // Close write end of to_disk
+        close(controllers[num].from_disk[0]); // Close read end of from_disk
+
+        // Run the disk simulation
+        start_disk(num, controllers[num].from_disk[1], controllers[num].to_disk[0]);
+        exit(1); // Should not reach here
+    }
+
+    // In parent process
+    controllers[num].pid = pid;
+
+    close(controllers[num].to_disk[0]);   // Close read end of to_disk
+    close(controllers[num].from_disk[1]); // Close write end of from_disk
+
+    return 0;
 }
 
 /* Initialize all disk controllers by initializing the controllers
@@ -342,7 +383,7 @@ int write_block(int block_num, char *data)
     }
 
     // get the current parity disk
-    if (read_block_from_disk(stripe_num, parity_data, 1) != 0)
+    if (read_block_from_disk(block_num, parity_data, 1) != 0)
     {
         // Handle error
         return num_disks; // Parity disk
@@ -363,7 +404,7 @@ int write_block(int block_num, char *data)
     }
 
     // update the parity disk
-    if (write_block_to_disk(stripe_num, parity_data, 1) != 0)
+    if (write_block_to_disk(block_num, parity_data, 1) != 0)
     {
         return num_disks;
     }
@@ -466,7 +507,7 @@ void restore_disk_process(int disk_num)
     {
         memset(lost_disk_buffer, 0, block_size);
 
-        if (read_block_from_disk(stripe, parity_block, 1) != 0)
+        if (read_block_from_disk(stripe * num_disks, parity_block, 1) != 0)
         {
             fprintf(stderr, "Failed to read parity disk at block %d\n", stripe);
             exit(1);

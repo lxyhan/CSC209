@@ -18,6 +18,8 @@
 
 int debug = 1; // Set to 1 to enable debug output, 0 to disable
 
+static int checkpoint_disk(char *disk_data, int id); // forward declaration
+
 /*
  * Main function for the disk simulation process, which runs in a child process
  * created by the RAID controller.
@@ -64,6 +66,7 @@ int start_disk(int id, int to_parent, int from_parent)
         switch (cmd)
         {
         case CMD_READ:
+        {
             // TODO: Handle READs
 
             // We first need to read the stripe number from the parent process
@@ -93,8 +96,10 @@ int start_disk(int id, int to_parent, int from_parent)
             }
 
             break;
+        }
 
         case CMD_WRITE:
+        {
             // TODO: Handle WRITEs
 
             // We first need to read the stripe number from the parent process
@@ -130,8 +135,10 @@ int start_disk(int id, int to_parent, int from_parent)
                 break;
             }
             break;
+        }
 
         case CMD_EXIT:
+        {
             // TODO: Handle EXITs
 
             // before we exit, we need to first checkpoint the disk
@@ -143,7 +150,7 @@ int start_disk(int id, int to_parent, int from_parent)
 
             if (debug)
             {
-                printf("[%d] Checkpointed disk successfully\n", id);
+                printf("[%d] Checkpointed disk\n", id);
             }
 
             return status;
@@ -153,6 +160,7 @@ int start_disk(int id, int to_parent, int from_parent)
             fprintf(stderr, "Error: Unknown command %d received\n", cmd);
             status = 1;
             break;
+        }
         }
     }
 
